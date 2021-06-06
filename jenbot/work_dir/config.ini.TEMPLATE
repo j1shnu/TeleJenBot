@@ -1,0 +1,24 @@
+[pyrogram]
+api_id =
+api_hash =
+
+[plugins]
+# Do not change this variable
+root = jenbot/bot/plugins
+
+[bot-configuration]
+# API Key Of Your BOT
+api_key =
+session = TelJenBot
+# Add Your Chat IDs in the list seperated by a comma
+authorized_chats = []
+
+[jenkins-credentials]
+# Username Of Your Jenkins Server
+username =
+# Password or API Key Of Jenkins Server
+password =
+# Url Of The Server. Egs :- http://localhost:8080 or https://jenkins.myserver.com
+url =
+# Enter The Company/Your Name To Show In Bot Message
+name =
