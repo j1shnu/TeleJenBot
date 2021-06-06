@@ -16,7 +16,7 @@ cd TeleJenBot
 python3 -m venv venv
 . ./venv/bin/active
 pip install -r requirements.txt
-python -m jenbot
+python3 -m jenbot
 ```
 ### Commands Available
 
