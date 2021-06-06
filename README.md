@@ -20,5 +20,5 @@ python -m jenbot
 ```
 ### Commands Available
 
-/start  -  Show Bot and Jenkins info.
-/jobs   -  Show jobs available in Jenkins Server.
+- /start  -  Show Bot and Jenkins info.
+- /jobs   -  Show jobs available in Jenkins Server.
