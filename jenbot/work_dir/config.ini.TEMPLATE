@@ -12,6 +12,8 @@ api_key =
 session = TelJenBot
 # Add Your Chat IDs in the list seperated by a comma
 authorized_chats = []
+# Enter one user id or username, who can control the bot permissions
+admin = 
 
 [jenkins-credentials]
 # Username Of Your Jenkins Server

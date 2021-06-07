@@ -1,7 +1,8 @@
+
 # TeleJenBot
 A Telegram BOT To Manage Jenkins Jobs
 
-#### Python3 required
+#### Python 3 required
 ### INSTALLATION
 
 Simply clone the repository and do the following.
@@ -16,9 +17,14 @@ cd TeleJenBot
 python3 -m venv venv
 . ./venv/bin/active
 pip install -r requirements.txt
-python -m jenbot
+python3 -m jenbot
 ```
+- If you're adding the bot to group chat then make sure the bot has admin privileges.
 ### Commands Available
 
-/start  -  Show Bot and Jenkins info.
-/jobs   -  Show jobs available in Jenkins Server.
+- `/start`  -  This'll simply show you the bot owner and Jenkins version.
+- `/getid`  -  This'll show you the current chat/user id.
+- `/auth`   -  This authorise a group or a particular user you're replying to.
+- `/unauth` -  This do the opposite of `/auth`.
+- `/listauth` - This'll show you all chats and users are authorised to use the bot.
+- `/jobs`   -  This'll show you the available Jenkins job in Inline Keyboard format.

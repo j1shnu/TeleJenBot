@@ -1,6 +1,7 @@
 from time import time
 from jenbot.helpers import jenkinServer
 from jenbot.helpers.details import get_job_details
+from jenbot.bot import JenkinsData
 
 
 def start_build(jobName, params):
@@ -35,6 +36,10 @@ def is_finished(jobName, buildNum):
 
 # https://stackoverflow.com/a/5723075
 def get_percentage(started: int, eta: int) -> int:
-    eta = started + eta
     now = round(time())
+    if now > started + eta:
+        eta = now + eta
+        JenkinsData.sleep_time += 2
+    else:
+        eta = started + eta
     return round((now - started) / (eta - started) * 100)

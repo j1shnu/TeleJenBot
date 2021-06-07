@@ -1,32 +1,37 @@
-import asyncio
+from asyncio import sleep
+from typing import Union
 from pyrogram import filters, emoji
 from pyrogram.types import (
     Message,
     InlineKeyboardMarkup,
     InlineKeyboardButton,
-    CallbackQuery,
 )
 
 from jenbot.bot import JenkinsBot, JenkinsData, Common
 from jenbot.helpers.details import get_jobs, get_version
 
 
-@JenkinsBot.on_message(filters.command("start", prefixes=["/"]))
+@JenkinsBot.on_message(filters.command("start"))
 async def start_msg_handler(c: JenkinsBot, m: Message):
     await m.reply_text(
-        text=f"Hello there! I'm **{Common().jenkins_name}**'s Jenkins BOT{emoji.ROBOT}.\nMy version is `{get_version()}`"
+        text=f"Hello there! I'm **{Common.jenkins_name}**'s Jenkins BOT{emoji.ROBOT}."
+        + f"\nMy version is `{get_version()}`"
     )
 
 
-@JenkinsBot.on_message(filters.command("getid", prefixes=["/"]))
+@JenkinsBot.on_message(filters.command("getid"))
 async def get_id(c: JenkinsBot, m: Message):
-    await m.reply_text(text=f"Your Chat ID :  `{m.chat.id}`")
+    await m.reply_text(text=f"Current Chat ID :  `{m.chat.id}`")
 
 
-@JenkinsBot.on_message(
-    filters.chat(JenkinsData.authorized_chats) & filters.command("jobs", prefixes=["/"])
-)
+@JenkinsBot.on_message(filters.command("jobs"))
 async def jobs_msg_handler(c: JenkinsBot, m: Message):
+    chat_info = [m.chat.id, m.chat.title or m.chat.username]
+    if (
+        chat_info[0] not in JenkinsData.authorized_chats
+        and JenkinsData.admin not in chat_info
+    ):
+        return
     msg = await m.reply_text(
         f"Fetching Available Jobs...{emoji.MAGNIFYING_GLASS_TILTED_LEFT}"
     )
@@ -51,18 +56,5 @@ async def jobs_msg_handler(c: JenkinsBot, m: Message):
         await msg.edit_text(
             f"Hey {m.from_user.mention},\nError Fetching Jobs, try again..!"
         )
-        asyncio.sleep(5)
+        await sleep(5)
         await msg.delete()
-
-
-@JenkinsBot.on_message(filters.command("test", prefixes=["/"]))
-async def CallbackupAlertTest(c: JenkinsBot, m: Message):
-    markup = [[InlineKeyboardButton("Test", callback_data="testtest")]]
-    await m.reply_text("test test", reply_markup=InlineKeyboardMarkup(markup))
-    await m.delete()
-
-
-@JenkinsBot.on_callback_query(filters.regex("^testtest$"))
-async def test_handler(c: JenkinsBot, m: CallbackQuery):
-    await m.answer(text="Holaaaaaaaa", show_alert=True)
-    # await m.
