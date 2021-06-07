@@ -21,7 +21,10 @@ async def start_msg_handler(c: JenkinsBot, m: Message):
 
 @JenkinsBot.on_message(filters.command("getid"))
 async def get_id(c: JenkinsBot, m: Message):
-    await m.reply_text(text=f"Current Chat ID :  `{m.chat.id}`")
+    msg = f"Current Chat ID :  `{m.chat.id}`"
+    if m.reply_to_message:
+        msg = f"User ID id : `{m.reply_to_message.from_user.id}`"
+    await m.reply_text(text=msg)
 
 
 @JenkinsBot.on_message(filters.command("jobs"))

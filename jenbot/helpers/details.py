@@ -20,12 +20,12 @@ def get_job_details(jobName):
     except:
         return None
 
+
 def get_param_names(data) -> list:
     """ Return the parameter names """
     names = []
     for name in data[0]["parameterDefinitions"]:
         names.append(name["name"])
-    print(name)
     return names
 
 

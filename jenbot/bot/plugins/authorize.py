@@ -48,8 +48,6 @@ async def unauthorize(c: JenkinsBot, m: Message):
 @JenkinsBot.on_message(filters.command("listauth"))
 async def listAuthChats(c: JenkinsBot, m: Message):
     from_user = m.from_user
-    print(JenkinsData.authorized_chats)
-    print(type(JenkinsData.authorized_chats))
     if from_user.username == JenkinsData.admin or from_user.id == JenkinsData.admin:
         chats = [await c.get_chat(i) for i in JenkinsData.authorized_chats]
         msg = ""

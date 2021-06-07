@@ -53,7 +53,6 @@ async def start_buid(c: JenkinsBot, m: CallbackQuery):
             except FloodWait as e:
                 sleep(e.x)
             except BadRequest as e:
-                print(e)
                 pass
         percentage_old = percentage
     else:
