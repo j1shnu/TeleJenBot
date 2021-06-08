@@ -1,5 +1,5 @@
 from json import loads
-from pyrogram import Client
+from pyrogram import Client, emoji
 from jenbot.common import Common
 
 JenkinsBot = Client(
@@ -25,6 +25,12 @@ class Data:
         self.password = Common.jenkins_password
         self.admin = Common.admin
         self.sleep_time = 5  # This'll increase by 2 if the current time is gt eta. This is to avoid FLOOD WAIT.
+        self.COLORS = {
+            "red": emoji.RED_CIRCLE,
+            "notbuilt": emoji.WHITE_CIRCLE,
+            "aborted": emoji.BLACK_CIRCLE,
+            "blue": emoji.BLUE_CIRCLE,
+        }
 
 
 JenkinsData = Data()

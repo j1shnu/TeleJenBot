@@ -1,9 +1,6 @@
-from os import linesep
-
-
 class Template:
     MESSAGE = (
-        "**Project Name** : **--[{job_name}]({jobURL})--**\n\n"
+        "**Project Name** : **--[{job_name}]({jobURL})--**  {color}\n\n"
         + "**Description** : __{description}__\n"
         + "**No. of Parameters** : {paramNum}\n"
         + "[Last Build]({lastBuildURL})\n\n"

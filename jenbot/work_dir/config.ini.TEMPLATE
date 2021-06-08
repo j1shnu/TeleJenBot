@@ -1,6 +1,6 @@
 [pyrogram]
-api_id =
-api_hash =
+API_ID =
+API_HASH =
 
 [plugins]
 # Do not change this variable
@@ -8,19 +8,19 @@ root = jenbot/bot/plugins
 
 [bot-configuration]
 # API Key Of Your BOT
-api_key =
-session = TelJenBot
+API_KEY =
+SESSION = TelJenBot
 # Add Your Chat IDs in the list seperated by a comma
-authorized_chats = []
+AUTHORIZED_CHATS = []
 # Enter one user id or username, who can control the bot permissions
-admin = 
+ADMIN = 
 
 [jenkins-credentials]
 # Username Of Your Jenkins Server
-username =
+USERNAME =
 # Password or API Key Of Jenkins Server
-password =
+PASSWORD =
 # Url Of The Server. Egs :- http://localhost:8080 or https://jenkins.myserver.com
-url =
+URL =
 # Enter The Company/Your Name To Show In Bot Message
-name =
+NAME =

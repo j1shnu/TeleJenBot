@@ -63,7 +63,10 @@ async def show_jobs(c: JenkinsBot, m: CallbackQuery, call_from_code=False):
     msg_text = message_template.Template.MESSAGE.format(
         job_name=JenkinsData.job_name,
         jobURL=job_details["url"],
-        lastBuildURL=job_details["lastBuild"]["url"] or None,
+        color=JenkinsData.COLORS[job_details["color"]],
+        lastBuildURL=job_details["lastBuild"]["url"]
+        if job_details["lastBuild"]
+        else None,
         description=job_details["description"] or None,
         paramNum=len(params),
     )
