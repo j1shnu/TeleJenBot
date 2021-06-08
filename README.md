@@ -21,7 +21,7 @@ Check <a href="https://github.com/j1shnu/TeleJenBot#variables">Variabled</a> and
 ```sh
 cd TeleJenBot
 python3 -m venv venv
-. ./venv/bin/active
+. ./venv/bin/activate
 pip install -r requirements.txt
 python3 -m jenbot
 ```
