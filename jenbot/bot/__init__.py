@@ -1,5 +1,8 @@
 from json import loads
+from asyncio import sleep
 from pyrogram import Client, emoji
+from pyrogram.types import Message
+
 from jenbot.common import Common
 
 JenkinsBot = Client(
@@ -34,3 +37,8 @@ class Data:
 
 
 JenkinsData = Data()
+
+
+async def delete_msg(msg: Message, time: int):
+    await sleep(time)
+    return bool(await msg.delete())

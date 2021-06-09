@@ -34,3 +34,15 @@ def get_param_datas(data, param):
     for i in data[0]["parameterDefinitions"]:
         if i["name"] == param:
             return i
+
+
+def get_running_builds() -> list:
+    builds = jenkinServer.get_running_builds()
+    if not builds:
+        return []
+    output = []
+    for build in builds:
+        output.append(
+            {"name": build["name"], "url": build["url"], "number": build["number"]}
+        )
+    return output

@@ -1,5 +1,3 @@
-from asyncio import sleep
-from typing import Union
 from pyrogram import filters, emoji
 from pyrogram.types import (
     Message,
@@ -7,8 +5,9 @@ from pyrogram.types import (
     InlineKeyboardButton,
 )
 
-from jenbot.bot import JenkinsBot, JenkinsData, Common
-from jenbot.helpers.details import get_jobs, get_version
+from jenbot.bot import JenkinsBot, JenkinsData, Common, delete_msg
+from jenbot.helpers.details import get_jobs, get_version, get_running_builds
+from jenbot.helpers.message_template import Template
 
 
 @JenkinsBot.on_message(filters.command("start"))
@@ -59,5 +58,26 @@ async def jobs_msg_handler(c: JenkinsBot, m: Message):
         await msg.edit_text(
             f"Hey {m.from_user.mention},\nError Fetching Jobs, try again..!"
         )
-        await sleep(5)
-        await msg.delete()
+        return await delete_msg(msg, 5)
+
+
+@JenkinsBot.on_message(filters.command("showbuild"))
+async def show_available_jobs(c: JenkinsBot, m: Message):
+    msg = await m.reply_text(
+        f"Getting Available Running Builds..{emoji.MAGNIFYING_GLASS_TILTED_LEFT}"
+    )
+    try:
+        builds = get_running_builds()
+        if not builds:
+            await msg.edit_text("No Builds are Running Now.")
+        else:
+            msg_text = f"Hi {m.from_user.mention}, Here are the current running Builds."
+            build_text = Template.generate_builds_template(builds)
+            await msg.edit_text(f"{msg_text}\n\n{build_text}")
+            return await delete_msg(msg, 20)
+
+    except Exception as e:
+        await msg.edit_text(
+            f"Error Fetching Current Builds..{emoji.DOUBLE_EXCLAMATION_MARK}, Try Again."
+        )
+    return await delete_msg(msg, 10)

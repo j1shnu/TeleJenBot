@@ -19,3 +19,15 @@ class Template:
             text_msg += params.format(key=key, value=param_data[key])
         text_msg += "\n"
         return text_msg
+
+    def generate_builds_template(builds_data: list) -> str:
+        text_msg = ""
+        builds = "**{num}**. [{name}]({url}) ([ConsoleLog]({logurl}))\n"
+        for i, build in enumerate(builds_data):
+            text_msg += builds.format(
+                num=i + 1,
+                name=build["name"],
+                url=build["url"],
+                logurl=f"{build['url']}/console",
+            )
+        return text_msg

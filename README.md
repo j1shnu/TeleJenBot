@@ -21,7 +21,7 @@ Check <a href="https://github.com/j1shnu/TeleJenBot#variables">Variabled</a> and
 ```sh
 cd TeleJenBot
 python3 -m venv venv
-. ./venv/bin/activate
+. ./venv/bin/active
 pip install -r requirements.txt
 python3 -m jenbot
 ```
@@ -56,3 +56,4 @@ python3 -m jenbot
 - `/unauth` - This do the opposite of `/auth`.
 - `/listauth` - This'll show you all chats and users are authorised to use the bot.
 - `/jobs` - This'll show you the available Jenkins job in Inline Keyboard format.
+- `/showbuild` - This'll show you the running Builds.

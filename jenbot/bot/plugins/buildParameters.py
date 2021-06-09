@@ -7,8 +7,8 @@ from pyrogram.types import (
     Message,
 )
 
-from jenbot.helpers import message_template
 from jenbot.bot import JenkinsBot, JenkinsData
+from jenbot.helpers.message_template import Template
 from jenbot.helpers.details import (
     get_jobs,
     get_job_details,
@@ -45,9 +45,7 @@ async def show_jobs(c: JenkinsBot, m: CallbackQuery, call_from_code=False):
             [InlineKeyboardButton(param, callback_data=f"param_{id}")]
             for id, param in enumerate(params)
         ]
-        msg_params = message_template.Template.generate_param_template(
-            param_data=JenkinsData.job_params
-        )
+        msg_params = Template.generate_param_template(param_data=JenkinsData.job_params)
     markup.append(
         [
             InlineKeyboardButton(
@@ -60,7 +58,7 @@ async def show_jobs(c: JenkinsBot, m: CallbackQuery, call_from_code=False):
         [InlineKeyboardButton(f"Back {emoji.BACK_ARROW}", callback_data="back2main")],
     )
 
-    msg_text = message_template.Template.MESSAGE.format(
+    msg_text = Template.MESSAGE.format(
         job_name=JenkinsData.job_name,
         jobURL=job_details["url"],
         color=JenkinsData.COLORS[job_details["color"]],
@@ -123,7 +121,7 @@ async def param_manager(c: JenkinsBot, m: CallbackQuery):
             ],
         ]
     elif param_detail["type"] == "StringParameterDefinition":
-        msg = message_template.Template.STRING_PARAM.format(
+        msg = Template.STRING_PARAM.format(
             description=param_detail["description"], param=param_detail["name"]
         )
         markup = []
