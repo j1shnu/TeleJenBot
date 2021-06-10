@@ -2,7 +2,7 @@ from math import floor
 from pyrogram import filters, emoji
 from asyncio import sleep as aiosleep
 from pyrogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
-from pyrogram.errors import FloodWait, BadRequest
+from pyrogram.errors import FloodWait, BadRequest, MessageNotModified
 
 from jenbot.bot import JenkinsData, JenkinsBot, delete_msg
 from jenbot.helpers import build, message_template
@@ -91,7 +91,7 @@ async def start_buid(c: JenkinsBot, m: CallbackQuery):
                 await aiosleep(JenkinsData.sleep_time)
             except FloodWait as e:
                 aiosleep(e.x)
-            except BadRequest as e:
+            except (BadRequest, MessageNotModified) as e:
                 pass
         percentage_old = percentage
     else:
