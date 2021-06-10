@@ -14,7 +14,7 @@ from jenbot.helpers.message_template import Template
 async def start_msg_handler(c: JenkinsBot, m: Message):
     await m.reply_text(
         text=f"Hello there! I'm **{Common.jenkins_name}**'s Jenkins BOT{emoji.ROBOT}."
-        + f"\nMy version is `{get_version()}`"
+        + f"\nConnected Jenkins version is `{get_version()}`"
     )
 
 
@@ -63,6 +63,12 @@ async def jobs_msg_handler(c: JenkinsBot, m: Message):
 
 @JenkinsBot.on_message(filters.command("showbuild"))
 async def show_available_jobs(c: JenkinsBot, m: Message):
+    chat_info = [m.chat.id, m.chat.title or m.chat.username]
+    if (
+        chat_info[0] not in JenkinsData.authorized_chats
+        and JenkinsData.admin not in chat_info
+    ):
+        return
     msg = await m.reply_text(
         f"Getting Available Running Builds..{emoji.MAGNIFYING_GLASS_TILTED_LEFT}"
     )

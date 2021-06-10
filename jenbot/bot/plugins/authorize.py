@@ -1,8 +1,7 @@
 from pyrogram.types import Message
-from asyncio import sleep
 from pyrogram import filters, emoji
 
-from jenbot.bot import JenkinsBot, JenkinsData
+from jenbot.bot import JenkinsBot, JenkinsData, delete_msg
 
 
 @JenkinsBot.on_message(filters.command("auth"))
@@ -21,8 +20,7 @@ async def authorize(c: JenkinsBot, m: Message):
                 JenkinsData.authorized_chats.append(m.chat.id)
                 msg = "Chat authorized, Members can use the Bot here."
         reply_msg = await m.reply_text(msg)
-        await sleep(10)
-        await reply_msg.delete()
+        return await delete_msg(reply_msg, 10)
 
 
 @JenkinsBot.on_message(filters.command("unauth"))
@@ -41,14 +39,18 @@ async def unauthorize(c: JenkinsBot, m: Message):
                 msg = "Chat authorization revoked, Members can no longer use the Bot."
                 JenkinsData.authorized_chats.remove(m.chat.id)
         reply_msg = await m.reply_text(msg)
-        await sleep(10)
-        await reply_msg.delete()
+        return await delete_msg(reply_msg, 10)
 
 
 @JenkinsBot.on_message(filters.command("listauth"))
 async def listAuthChats(c: JenkinsBot, m: Message):
     from_user = m.from_user
     if from_user.username == JenkinsData.admin or from_user.id == JenkinsData.admin:
+        if not JenkinsData.authorized_chats:
+            reply_msg = await m.reply_text(
+                f"Hi {from_user.username}, I'm not authorized with any chats now."
+            )
+            return await delete_msg(reply_msg, 10)
         chats = [await c.get_chat(i) for i in JenkinsData.authorized_chats]
         msg = ""
         for chat in chats:
@@ -57,7 +59,6 @@ async def listAuthChats(c: JenkinsBot, m: Message):
                 if chat.type == "private"
                 else f"`{chat.title}`(Group)\n"
             )
-            text = f"Hi {m.from_user.mention},\nHere are the authorized chats list"
+            text = f"Hi {from_user.username},\nHere are the authorized chats list"
         reply_msg = await m.reply_text(f"{text}\n\n{msg}")
-        await sleep(20)
-        await reply_msg.delete()
+        return await delete_msg(reply_msg, 20)

@@ -1,16 +1,47 @@
-from time import sleep
 from math import floor
 from pyrogram import filters, emoji
 from asyncio import sleep as aiosleep
-from pyrogram.types import CallbackQuery
+from pyrogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
 from pyrogram.errors import FloodWait, BadRequest
 
-from jenbot.bot import JenkinsData, JenkinsBot
+from jenbot.bot import JenkinsData, JenkinsBot, delete_msg
 from jenbot.helpers import build, message_template
 from jenbot.helpers.details import get_job_details, get_param_names
 
 
 @JenkinsBot.on_callback_query(filters.regex("^start_build$"))
+async def confirm_build(c: JenkinsBot, m: CallbackQuery):
+    job_name, job_params = JenkinsData.job_name, JenkinsData.job_params
+    job_details = get_job_details(jobName=job_name)
+    if not job_details:
+        return bool(
+            await m.answer("Error Fetching Details...! Try Again.", show_alert=True)
+        )
+    params = get_param_names(job_details["property"]) if job_details["property"] else []
+    msg_text = message_template.Template.MESSAGE.format(
+        job_name=job_name,
+        jobURL=job_details["url"],
+        color=JenkinsData.COLORS[job_details["color"]],
+        lastBuildURL=job_details["lastBuild"]["url"] or None,
+        description=job_details["description"] or None,
+        paramNum=len(params),
+    )
+    msg_params = message_template.Template.generate_param_template(
+        param_data=job_params
+    )
+    msg_text = f"{msg_text}{msg_params}\n**Do You Want To Continue With The Build?**"
+    markup = [
+        [
+            InlineKeyboardButton(
+                f"YES {emoji.CHECK_MARK_BUTTON}", callback_data="build_confirmed"
+            ),
+            InlineKeyboardButton(f"NO {emoji.CROSS_MARK}", callback_data="back2params"),
+        ],
+    ]
+    await m.message.edit(text=msg_text, reply_markup=InlineKeyboardMarkup(markup))
+
+
+@JenkinsBot.on_callback_query(filters.regex("^build_confirmed$"))
 async def start_buid(c: JenkinsBot, m: CallbackQuery):
     job_name = JenkinsData.job_name
     job_params = JenkinsData.job_params
@@ -59,7 +90,7 @@ async def start_buid(c: JenkinsBot, m: CallbackQuery):
                 )
                 await aiosleep(JenkinsData.sleep_time)
             except FloodWait as e:
-                sleep(e.x)
+                aiosleep(e.x)
             except BadRequest as e:
                 pass
         percentage_old = percentage
@@ -90,5 +121,4 @@ async def start_buid(c: JenkinsBot, m: CallbackQuery):
             ),
             disable_web_page_preview=True,
         )
-        await aiosleep(2)
-        await m.message.delete()
+        return await delete_msg(m.message, 1)

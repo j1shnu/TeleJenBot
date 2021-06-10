@@ -1,4 +1,3 @@
-from asyncio import sleep as aiosleep
 from pyrogram import filters, emoji
 from pyrogram.types import (
     CallbackQuery,
@@ -7,7 +6,7 @@ from pyrogram.types import (
     Message,
 )
 
-from jenbot.bot import JenkinsBot, JenkinsData
+from jenbot.bot import JenkinsBot, JenkinsData, delete_msg
 from jenbot.helpers.message_template import Template
 from jenbot.helpers.details import (
     get_jobs,
@@ -19,7 +18,7 @@ from jenbot.helpers.details import (
 
 @JenkinsBot.on_callback_query(filters.regex("^jobs_\d{0,2}$"))
 async def show_jobs(c: JenkinsBot, m: CallbackQuery, call_from_code=False):
-    """ This will Show the Jobs available in Jenkins Server """
+    """This will Show the Jobs available in Jenkins Server"""
     if not call_from_code:
         jobs = JenkinsData.jobs
         callback_data = m.data.split("_")[1]
@@ -176,8 +175,7 @@ async def reply_msg_handler(c: JenkinsBot, m: Message):
             chat_id=m.chat.id,
             text=f"Hi {m.from_user.mention}, \nInvalid Parameter or Data..!\n\nMessage will be Auto Deleted in 5Secs",
         )
-        await aiosleep(5)
-        return bool(await new_msg.delete())
+        return await delete_msg(new_msg, 5)
     JenkinsData.job_params[param] = value
     await m.delete()
     await back_to_params(c, msg.reply_to_message)

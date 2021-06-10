@@ -17,7 +17,7 @@ Common = Common()
 
 
 class Data:
-    """ This is Temporary Data Storing """
+    """This is Temporary Data Storing"""
 
     def __init__(self) -> None:
         self.jobs = None
