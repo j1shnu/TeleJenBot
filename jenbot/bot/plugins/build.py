@@ -1,8 +1,9 @@
 from math import floor
 from pyrogram import filters, emoji
 from asyncio import sleep as aiosleep
-from pyrogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
 from pyrogram.errors import FloodWait, BadRequest, MessageNotModified
+from pyrogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
+from contextlib import suppress as ignored
 
 from jenbot.bot import JenkinsData, JenkinsBot, delete_msg, alert_and_delete
 from jenbot.helpers import build, message_template
@@ -82,13 +83,17 @@ async def start_buid(c: JenkinsBot, m: CallbackQuery):
             )
             try:
                 infoTxt = "\n__(Progress bar may not be 100% accurate.)__"
-                await m.message.edit(
-                    text=f"{msg_text}{build_text}\n{progressbar} {percentage}%{infoTxt}"
+                final_msg = (
+                    f"{msg_text}{build_text}\n{progressbar} {percentage}%{infoTxt}"
                 )
+                with ignored(MessageNotModified):
+                    await m.message.edit(
+                        text=f"{msg_text}{build_text}\n{progressbar} {percentage}%{infoTxt}"
+                    )
                 await aiosleep(JenkinsData.sleep_time)
             except FloodWait as e:
                 aiosleep(e.x)
-            except (BadRequest, MessageNotModified) as e:
+            except (BadRequest) as e:
                 pass
         percentage_old = percentage
     else:
