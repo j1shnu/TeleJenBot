@@ -4,19 +4,19 @@ from asyncio import sleep as aiosleep
 from pyrogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
 from pyrogram.errors import FloodWait, BadRequest, MessageNotModified
 
-from jenbot.bot import JenkinsData, JenkinsBot, delete_msg
+from jenbot.bot import JenkinsData, JenkinsBot, delete_msg, alert_and_delete
 from jenbot.helpers import build, message_template
 from jenbot.helpers.details import get_job_details, get_param_names
 
 
 @JenkinsBot.on_callback_query(filters.regex("^start_build$"))
 async def confirm_build(c: JenkinsBot, m: CallbackQuery):
+    if not JenkinsData.jobs:
+        return await alert_and_delete(m)
     job_name, job_params = JenkinsData.job_name, JenkinsData.job_params
     job_details = get_job_details(jobName=job_name)
     if not job_details:
-        return bool(
-            await m.answer("Error Fetching Details...! Try Again.", show_alert=True)
-        )
+        return await alert_and_delete(m, delete=False)
     params = get_param_names(job_details["property"]) if job_details["property"] else []
     msg_text = message_template.Template.MESSAGE.format(
         job_name=job_name,
@@ -43,13 +43,13 @@ async def confirm_build(c: JenkinsBot, m: CallbackQuery):
 
 @JenkinsBot.on_callback_query(filters.regex("^build_confirmed$"))
 async def start_buid(c: JenkinsBot, m: CallbackQuery):
+    if not JenkinsData.jobs:
+        return await alert_and_delete(m)
     job_name = JenkinsData.job_name
     job_params = JenkinsData.job_params
     job_details = get_job_details(jobName=job_name)
     if not job_details:
-        return bool(
-            await m.answer("Error Fetching Details...! Try Again.", show_alert=True)
-        )
+        return await alert_and_delete(m, delete=False)
     params = get_param_names(job_details["property"]) if job_details["property"] else []
     msg_text = message_template.Template.MESSAGE.format(
         job_name=job_name,
@@ -66,10 +66,7 @@ async def start_buid(c: JenkinsBot, m: CallbackQuery):
     await m.message.edit("Starting **BUILD**....")
     build_info = build.start_build(job_name, job_params)
     if not build_info:
-        await m.answer(
-            "Error Fetching Details To Start The Build. Try Again..!", show_alert=True
-        )
-        return bool(await m.message.delete())
+        return alert_and_delete(m)
     build_text = f"**BUILD Started.** - [Console Log]({build_info['url']}/console)"
     await m.message.edit(text=f"{msg_text}{build_text}")
     await aiosleep(3)

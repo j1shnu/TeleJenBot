@@ -1,4 +1,5 @@
 from time import time
+from jenbot import logging
 from jenbot.helpers import jenkinServer
 from jenbot.helpers.details import get_job_details
 from jenbot.bot import JenkinsData
@@ -21,6 +22,7 @@ def start_build(jobName, params):
             "build_num": nextBuildNo,
         }
     except Exception as e:
+        logging.error(e)
         return None
 
 

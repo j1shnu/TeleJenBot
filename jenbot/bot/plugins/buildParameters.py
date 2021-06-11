@@ -6,7 +6,7 @@ from pyrogram.types import (
     Message,
 )
 
-from jenbot.bot import JenkinsBot, JenkinsData, delete_msg
+from jenbot.bot import JenkinsBot, JenkinsData, delete_msg, alert_and_delete
 from jenbot.helpers.message_template import Template
 from jenbot.helpers.details import (
     get_jobs,
@@ -19,6 +19,8 @@ from jenbot.helpers.details import (
 @JenkinsBot.on_callback_query(filters.regex("^jobs_\d{0,2}$"))
 async def show_jobs(c: JenkinsBot, m: CallbackQuery, call_from_code=False):
     """This will Show the Jobs available in Jenkins Server"""
+    if not JenkinsData.jobs:
+        return await alert_and_delete(m)
     if not call_from_code:
         jobs = JenkinsData.jobs
         callback_data = m.data.split("_")[1]
@@ -30,9 +32,7 @@ async def show_jobs(c: JenkinsBot, m: CallbackQuery, call_from_code=False):
 
     job_details = get_job_details(jobName=JenkinsData.job_name)
     if not job_details:
-        return bool(
-            await m.answer("Error Fetching Details...! Try Again.", show_alert=True)
-        )
+        return await alert_and_delete(m, delete=False)
 
     params, msg_params, markup = [], "", []
     if job_details["property"]:
@@ -87,11 +87,7 @@ async def param_manager(c: JenkinsBot, m: CallbackQuery):
             selected_param = button[0].text
             job_details = get_job_details(jobName=JenkinsData.job_name)
             if not job_details:
-                return bool(
-                    await m.answer(
-                        text="Error Fetching Details...! Try Again.", show_alert=True
-                    )
-                )
+                return await alert_and_delete(m, delete=False)
             param_detail = get_param_datas(job_details["property"], selected_param)
             break
     msg = None
@@ -135,9 +131,7 @@ async def param_manager(c: JenkinsBot, m: CallbackQuery):
 async def back_to_main(c: JenkinsBot, m: CallbackQuery):
     jobs = get_jobs()
     if not jobs:
-        return bool(
-            await m.answer(text="Error Fetching Jobs, try again", show_alert=True)
-        )
+        return await alert_and_delete(m, delete=False)
     JenkinsData.jobs = jobs
     jobs = [job["name"] for job in jobs]
     await m.message.edit(
@@ -153,7 +147,7 @@ async def back_to_main(c: JenkinsBot, m: CallbackQuery):
 
 @JenkinsBot.on_callback_query(filters.regex("^back2params$"))
 async def back_to_params(c: JenkinsBot, m: CallbackQuery):
-    await show_jobs(c, m, True)
+    return await show_jobs(c, m, True)
 
 
 @JenkinsBot.on_callback_query(filters.regex("^pselect_*"))
