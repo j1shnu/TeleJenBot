@@ -1,13 +1,14 @@
 from math import floor
 from pyrogram import filters, emoji
 from asyncio import sleep as aiosleep
+from contextlib import suppress as ignored
 from pyrogram.errors import FloodWait, BadRequest, MessageNotModified
 from pyrogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
-from contextlib import suppress as ignored
 
-from jenbot.bot import JenkinsData, JenkinsBot, delete_msg, alert_and_delete
+from jenbot import logging
 from jenbot.helpers import build, message_template
 from jenbot.helpers.details import get_job_details, get_param_names
+from jenbot.bot import JenkinsData, JenkinsBot, delete_msg, alert_and_delete
 
 
 @JenkinsBot.on_callback_query(filters.regex("^start_build$"))
@@ -67,8 +68,12 @@ async def start_buid(c: JenkinsBot, m: CallbackQuery):
     await m.message.edit("Starting **BUILD**....")
     build_info = build.start_build(job_name, job_params)
     if not build_info:
-        return alert_and_delete(m)
+        return await alert_and_delete(m)
     build_text = f"**BUILD Started.** - [Console Log]({build_info['url']}/console)"
+    logging.info(
+        f"{job_name}(Number: {build_info['build_num']}) "
+        + f"build started by {m.from_user.username}({m.from_user.id})."
+    )
     await m.message.edit(text=f"{msg_text}{build_text}")
     await aiosleep(3)
     percentage_old = 0
@@ -86,18 +91,22 @@ async def start_buid(c: JenkinsBot, m: CallbackQuery):
                 final_msg = (
                     f"{msg_text}{build_text}\n{progressbar} {percentage}%{infoTxt}"
                 )
+                # https://t.me/pyrogramchat/326148
                 with ignored(MessageNotModified):
                     await m.message.edit(
                         text=f"{msg_text}{build_text}\n{progressbar} {percentage}%{infoTxt}"
                     )
                 await aiosleep(JenkinsData.sleep_time)
             except FloodWait as e:
+                logging.warning(f"Flood wait, Sleeping for {e.x} seconds.")
                 aiosleep(e.x)
             except (BadRequest) as e:
+                logging.error(e)
                 pass
         percentage_old = percentage
     else:
         build_finished = build.is_finished(job_name, build_info["build_num"])
+        logging.info(f"{job_name} build status : {build_finished}")
         if build_finished == "SUCCESS":
             msg_text = msg_text + f"**BUILD COMPLETED** {emoji.CHECK_MARK_BUTTON}"
         elif build_finished == "FAILURE":

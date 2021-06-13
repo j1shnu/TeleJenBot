@@ -1,8 +1,8 @@
 from time import time
 from jenbot import logging
+from jenbot.bot import JenkinsData
 from jenbot.helpers import jenkinServer
 from jenbot.helpers.details import get_job_details
-from jenbot.bot import JenkinsData
 
 
 def start_build(jobName, params):

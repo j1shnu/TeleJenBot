@@ -1,5 +1,5 @@
-import asyncio
 from pyrogram import idle
+from asyncio import get_event_loop
 
 from jenbot.bot import JenkinsBot
 
@@ -10,5 +10,5 @@ async def main():
 
 
 if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
+    loop = get_event_loop()
     loop.run_until_complete(main())

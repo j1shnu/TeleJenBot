@@ -1,3 +1,4 @@
+from jenbot import logging
 from jenbot.helpers import jenkinServer
 
 
@@ -6,23 +7,25 @@ def get_version():
 
 
 def get_jobs():
-    """ Returns available jobs or None """
+    """Returns available jobs or None"""
     try:
         return jenkinServer.get_jobs()
-    except:
+    except Exception as e:
+        logging.error(f"Error getting jobs, {e}")
         return None
 
 
 def get_job_details(jobName):
-    """ Returns the details of a job or None """
+    """Returns the details of a job or None"""
     try:
         return jenkinServer.get_job_info(jobName)
-    except:
+    except Exception as e:
+        logging.error(f"Error getting job details, {e}")
         return None
 
 
 def get_param_names(data) -> list:
-    """ Return the parameter names """
+    """Return the parameter names"""
     names = []
     for name in data[0]["parameterDefinitions"]:
         names.append(name["name"])
@@ -30,7 +33,7 @@ def get_param_names(data) -> list:
 
 
 def get_param_datas(data, param):
-    """ Returns the parameter details """
+    """Returns the parameter details"""
     for i in data[0]["parameterDefinitions"]:
         if i["name"] == param:
             return i

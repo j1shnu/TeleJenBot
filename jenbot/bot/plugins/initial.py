@@ -5,9 +5,10 @@ from pyrogram.types import (
     InlineKeyboardButton,
 )
 
+from jenbot import logging
+from jenbot.helpers.message_template import Template
 from jenbot.bot import JenkinsBot, JenkinsData, Common, delete_msg
 from jenbot.helpers.details import get_jobs, get_version, get_running_builds
-from jenbot.helpers.message_template import Template
 
 
 @JenkinsBot.on_message(filters.command("start"))
@@ -54,7 +55,8 @@ async def jobs_msg_handler(c: JenkinsBot, m: Message):
                 ]
             ),
         )
-    except:
+    except Exception as e:
+        logging.error(f"Error fetching jobs, {e}")
         await msg.edit_text(
             f"Hey {m.from_user.mention},\nError Fetching Jobs, try again..!"
         )
@@ -83,6 +85,7 @@ async def show_available_jobs(c: JenkinsBot, m: Message):
             return await delete_msg(msg, 20)
 
     except Exception as e:
+        logging.error(f"Error fetching running jobs, {e}")
         await msg.edit_text(
             f"Error Fetching Current Builds..{emoji.DOUBLE_EXCLAMATION_MARK}, Try Again."
         )
