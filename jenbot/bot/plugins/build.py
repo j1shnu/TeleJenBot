@@ -1,7 +1,8 @@
 from math import floor
+from contextlib import suppress
 from pyrogram import filters, emoji
 from asyncio import sleep as aiosleep
-from contextlib import suppress as ignored
+from requests.exceptions import ConnectionError
 from pyrogram.errors import FloodWait, BadRequest, MessageNotModified
 from pyrogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
 
@@ -74,13 +75,18 @@ async def start_buid(c: JenkinsBot, m: CallbackQuery):
         f"{job_name}(Number: {build_info['build_num']}) "
         + f"build started by {m.from_user.username}({m.from_user.id})."
     )
-    await m.message.edit(text=f"{msg_text}{build_text}")
+    with suppress(MessageNotModified):
+        await m.message.edit(text=f"{msg_text}{build_text}")
     await aiosleep(3)
     percentage_old = 0
     while not build.is_finished(job_name, build_info["build_num"]):
         progressbar = "{}{}"
-        eta = build.get_eta(job_name, build_info["build_num"])
-        percentage = build.get_percentage(build_info["start_time"], eta)
+        try:
+            eta = build.get_eta(job_name, build_info["build_num"])
+            percentage = build.get_percentage(build_info["start_time"], eta)
+        except ConnectionError as e:
+            logging.error(e)
+            pass
         if percentage != percentage_old:
             progressbar = progressbar.format(
                 "".join(("█" for _ in range(floor(percentage / 5)))),
@@ -92,10 +98,8 @@ async def start_buid(c: JenkinsBot, m: CallbackQuery):
                     f"{msg_text}{build_text}\n{progressbar} {percentage}%{infoTxt}"
                 )
                 # https://t.me/pyrogramchat/326148
-                with ignored(MessageNotModified):
-                    await m.message.edit(
-                        text=f"{msg_text}{build_text}\n{progressbar} {percentage}%{infoTxt}"
-                    )
+                with suppress(MessageNotModified):
+                    await m.message.edit(text=final_msg)
                 await aiosleep(JenkinsData.sleep_time)
             except FloodWait as e:
                 logging.warning(f"Flood wait, Sleeping for {e.x} seconds.")

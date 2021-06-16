@@ -33,6 +33,8 @@ class Data:
             "notbuilt": emoji.WHITE_CIRCLE,
             "aborted": emoji.BLACK_CIRCLE,
             "blue": emoji.BLUE_CIRCLE,
+            "red_anime": f"{emoji.RED_CIRCLE}{emoji.MAN_CONSTRUCTION_WORKER}",
+            "blue_anime": f"{emoji.BLUE_CIRCLE}{emoji.MAN_CONSTRUCTION_WORKER}",
         }
 
 

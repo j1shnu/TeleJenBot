@@ -79,7 +79,9 @@ async def show_available_jobs(c: JenkinsBot, m: Message):
         if not builds:
             await msg.edit_text("No Builds are Running Now.")
         else:
-            msg_text = f"Hi {m.from_user.mention}, Here are the current running Builds."
+            msg_text = (
+                f"Hi {m.from_user.username}, Here are the current running Builds."
+            )
             build_text = Template.generate_builds_template(builds)
             await msg.edit_text(f"{msg_text}\n\n{build_text}")
             return await delete_msg(msg, 20)

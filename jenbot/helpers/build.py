@@ -1,4 +1,5 @@
-from time import time
+from time import time, sleep
+
 from jenbot import logging
 from jenbot.bot import JenkinsData
 from jenbot.helpers import jenkinServer
@@ -11,7 +12,9 @@ def start_build(jobName, params):
         return None
     nextBuildNo = job_details["nextBuildNumber"]
     try:
+        jenkinServer.crumb = None  # Removing current crumb to get new one(will auto generate on build start).
         jenkinServer.build_job(jobName, parameters=params)
+        sleep(10)
         while jenkinServer.get_queue_info():
             pass
         started_time = round(time())
