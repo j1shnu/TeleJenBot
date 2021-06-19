@@ -2,6 +2,7 @@ class Template:
     MESSAGE = (
         "**Project Name** : **--[{job_name}]({jobURL})--**  {color}\n\n"
         + "**Description** : __{description}__\n"
+        + "**State** : {state}\n"
         + "**No. of Parameters** : {paramNum}\n"
         + "[Last Build]({lastBuildURL})\n\n"
     )

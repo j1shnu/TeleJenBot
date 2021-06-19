@@ -8,8 +8,8 @@ from pyrogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMa
 
 from jenbot import logging
 from jenbot.helpers import build, message_template
-from jenbot.helpers.details import get_job_details, get_param_names
 from jenbot.bot import JenkinsData, JenkinsBot, delete_msg, alert_and_delete
+from jenbot.helpers.details import get_job_details, get_param_names, is_buildable
 
 
 @JenkinsBot.on_callback_query(filters.regex("^start_build$"))
@@ -28,6 +28,9 @@ async def confirm_build(c: JenkinsBot, m: CallbackQuery):
         lastBuildURL=job_details["lastBuild"]["url"] or None,
         description=job_details["description"] or None,
         paramNum=len(params),
+        state="Not Buildable"
+        if not job_details["buildable"]
+        else is_buildable(JenkinsData.job_name),
     )
     msg_params = message_template.Template.generate_param_template(
         param_data=job_params
@@ -61,6 +64,9 @@ async def start_buid(c: JenkinsBot, m: CallbackQuery):
         lastBuildURL=job_details["lastBuild"]["url"] or None,
         description=job_details["description"] or None,
         paramNum=len(params),
+        state="Not Buildable"
+        if not job_details["buildable"]
+        else is_buildable(JenkinsData.job_name),
     )
     msg_params = message_template.Template.generate_param_template(
         param_data=job_params

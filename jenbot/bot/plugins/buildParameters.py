@@ -6,18 +6,20 @@ from pyrogram.types import (
     Message,
 )
 
-from jenbot.bot import JenkinsBot, JenkinsData, delete_msg, alert_and_delete
 from jenbot.helpers.message_template import Template
+from jenbot.bot import JenkinsBot, JenkinsData, delete_msg, alert_and_delete
 from jenbot.helpers.details import (
     get_jobs,
     get_job_details,
     get_param_names,
     get_param_datas,
+    get_default_value,
+    is_buildable,
 )
 
 
 @JenkinsBot.on_callback_query(filters.regex("^jobs_\d{0,2}$"))
-async def show_jobs(c: JenkinsBot, m: CallbackQuery, call_from_code=False):
+async def job_info(c: JenkinsBot, m: CallbackQuery, call_from_code=False):
     """This will Show the Jobs available in Jenkins Server"""
     if not JenkinsData.jobs:
         return await alert_and_delete(m)
@@ -35,11 +37,13 @@ async def show_jobs(c: JenkinsBot, m: CallbackQuery, call_from_code=False):
         return await alert_and_delete(m, delete=False)
 
     params, msg_params, markup = [], "", []
-    if job_details["property"]:
+    if job_details["property"] and get_param_names(job_details["property"]):
         params = get_param_names(job_details["property"])
         for param in params:
             if not JenkinsData.job_params.get(param):
-                JenkinsData.job_params[param] = ""
+                JenkinsData.job_params[param] = get_default_value(
+                    job_details["property"], param
+                )
         markup = [
             [InlineKeyboardButton(param, callback_data=f"param_{id}")]
             for id, param in enumerate(params)
@@ -66,6 +70,9 @@ async def show_jobs(c: JenkinsBot, m: CallbackQuery, call_from_code=False):
         else None,
         description=job_details["description"] or None,
         paramNum=len(params),
+        state="Not Buildable"
+        if not job_details["buildable"]
+        else is_buildable(JenkinsData.job_name),
     )
 
     msg_description = (
@@ -120,6 +127,15 @@ async def param_manager(c: JenkinsBot, m: CallbackQuery):
             description=param_detail["description"], param=param_detail["name"]
         )
         markup = []
+        if JenkinsData.job_params[param_detail["name"]]:
+            markup.append(
+                [
+                    InlineKeyboardButton(
+                        f"CLEAR {emoji.BROOM}",
+                        callback_data=f"clearparam_=_{param_detail['name']}",
+                    )
+                ]
+            )
     markup.append(
         [InlineKeyboardButton(f"Back {emoji.BACK_ARROW}", callback_data="back2params")]
     )
@@ -138,7 +154,7 @@ async def back_to_main(c: JenkinsBot, m: CallbackQuery):
         "Available Jobs",
         reply_markup=InlineKeyboardMarkup(
             [
-                [InlineKeyboardButton(f"{id}. {job}", callback_data=f"jobs_{id}")]
+                [InlineKeyboardButton(f"{id + 1}. {job}", callback_data=f"jobs_{id}")]
                 for id, job in enumerate(jobs)
             ]
         ),
@@ -147,10 +163,10 @@ async def back_to_main(c: JenkinsBot, m: CallbackQuery):
 
 @JenkinsBot.on_callback_query(filters.regex("^back2params$"))
 async def back_to_params(c: JenkinsBot, m: CallbackQuery):
-    return await show_jobs(c, m, True)
+    return await job_info(c, m, True)
 
 
-@JenkinsBot.on_callback_query(filters.regex("^pselect_*"))
+@JenkinsBot.on_callback_query(filters.regex("^pselect_\=_*"))
 async def set_params(c: JenkinsBot, m: CallbackQuery):
     select, param, value = m.data.split("_=_")
     JenkinsData.job_params[param] = value
@@ -173,3 +189,10 @@ async def reply_msg_handler(c: JenkinsBot, m: Message):
     JenkinsData.job_params[param] = value
     await m.delete()
     await back_to_params(c, msg.reply_to_message)
+
+
+@JenkinsBot.on_callback_query(filters.regex("^clearparam_\=_"))
+async def clear_param_value(c: JenkinsBot, m: CallbackQuery):
+    select, param = m.data.split("_=_")
+    JenkinsData.job_params[param] = ""
+    await back_to_params(c, m)
