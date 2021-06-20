@@ -57,6 +57,10 @@ async def start_buid(c: JenkinsBot, m: CallbackQuery):
     if not job_details:
         return await alert_and_delete(m, delete=False)
     params = get_param_names(job_details["property"]) if job_details["property"] else []
+    await m.message.edit("Starting **BUILD**....")
+    build_info = build.start_build(job_name, job_params)
+    if not build_info:
+        return await alert_and_delete(m)
     msg_text = message_template.Template.MESSAGE.format(
         job_name=job_name,
         jobURL=job_details["url"],
@@ -66,16 +70,12 @@ async def start_buid(c: JenkinsBot, m: CallbackQuery):
         paramNum=len(params),
         state="Not Buildable"
         if not job_details["buildable"]
-        else is_buildable(JenkinsData.job_name),
+        else is_buildable(job_name),
     )
     msg_params = message_template.Template.generate_param_template(
         param_data=job_params
     )
     msg_text = f"{msg_text}{msg_params}"
-    await m.message.edit("Starting **BUILD**....")
-    build_info = build.start_build(job_name, job_params)
-    if not build_info:
-        return await alert_and_delete(m)
     build_text = f"**BUILD Started.** - [Console Log]({build_info['url']}/console)"
     logging.info(
         f"{job_name}(Number: {build_info['build_num']}) "
@@ -117,6 +117,21 @@ async def start_buid(c: JenkinsBot, m: CallbackQuery):
     else:
         build_finished = build.is_finished(job_name, build_info["build_num"])
         logging.info(f"{job_name} build status : {build_finished}")
+        msg_text = message_template.Template.MESSAGE.format(
+            job_name=job_name,
+            jobURL=job_details["url"],
+            color=JenkinsData.COLORS[job_details["color"]],
+            lastBuildURL=job_details["lastBuild"]["url"] or None,
+            description=job_details["description"] or None,
+            paramNum=len(params),
+            state="Not Buildable"
+            if not job_details["buildable"]
+            else is_buildable(job_name),
+        )
+        msg_params = message_template.Template.generate_param_template(
+            param_data=job_params
+        )
+        msg_text = f"{msg_text}{msg_params}"
         if build_finished == "SUCCESS":
             msg_text = msg_text + f"**BUILD COMPLETED** {emoji.CHECK_MARK_BUTTON}"
         elif build_finished == "FAILURE":
