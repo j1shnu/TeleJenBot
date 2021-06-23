@@ -4,7 +4,7 @@ class Template:
         + "**Description** : __{description}__\n"
         + "**State** : {state}\n"
         + "**No. of Parameters** : {paramNum}\n"
-        + "[Last Build]({lastBuildURL})\n\n"
+        + "**Last Build** : {lastBuildURL}\n\n"
     )
     STRING_PARAM = (
         "**Description**  : __{description}__\n\n"

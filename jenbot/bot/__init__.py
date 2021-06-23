@@ -35,6 +35,9 @@ class Data:
             "blue": emoji.BLUE_CIRCLE,
             "red_anime": f"{emoji.RED_CIRCLE}{emoji.MAN_CONSTRUCTION_WORKER}",
             "blue_anime": f"{emoji.BLUE_CIRCLE}{emoji.MAN_CONSTRUCTION_WORKER}",
+            "disabled": f"{emoji.CROSS_MARK}",
+            "yellow": f"{emoji.YELLOW_CIRCLE}",
+            "yellow_anime": f"{emoji.YELLOW_CIRCLE}{emoji.MAN_CONSTRUCTION_WORKER}",
         }
 
 

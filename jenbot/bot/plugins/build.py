@@ -20,12 +20,15 @@ async def confirm_build(c: JenkinsBot, m: CallbackQuery):
     job_details = get_job_details(jobName=job_name)
     if not job_details:
         return await alert_and_delete(m, delete=False)
+    lastBuild = job_details["lastBuild"] or None
     params = get_param_names(job_details["property"]) if job_details["property"] else []
     msg_text = message_template.Template.MESSAGE.format(
         job_name=job_name,
         jobURL=job_details["url"],
         color=JenkinsData.COLORS[job_details["color"]],
-        lastBuildURL=job_details["lastBuild"]["url"] or None,
+        lastBuildURL=f'[{lastBuild["number"]}]({lastBuild["url"]})'
+        if lastBuild
+        else None,
         description=job_details["description"] or None,
         paramNum=len(params),
         state="Not Buildable"
@@ -61,11 +64,14 @@ async def start_buid(c: JenkinsBot, m: CallbackQuery):
     build_info = build.start_build(job_name, job_params)
     if not build_info:
         return await alert_and_delete(m)
+    lastBuild = job_details["lastBuild"] or None
     msg_text = message_template.Template.MESSAGE.format(
         job_name=job_name,
         jobURL=job_details["url"],
         color=JenkinsData.COLORS[job_details["color"]],
-        lastBuildURL=job_details["lastBuild"]["url"] or None,
+        lastBuildURL=f'[{lastBuild["number"]}]({lastBuild["url"]})'
+        if lastBuild
+        else None,
         description=job_details["description"] or None,
         paramNum=len(params),
         state="Not Buildable"
@@ -121,7 +127,9 @@ async def start_buid(c: JenkinsBot, m: CallbackQuery):
             job_name=job_name,
             jobURL=job_details["url"],
             color=JenkinsData.COLORS[job_details["color"]],
-            lastBuildURL=job_details["lastBuild"]["url"] or None,
+            lastBuildURL=f'[{lastBuild["number"]}]({lastBuild["url"]})'
+            if lastBuild
+            else None,
             description=job_details["description"] or None,
             paramNum=len(params),
             state="Not Buildable"

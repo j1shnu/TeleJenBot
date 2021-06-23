@@ -20,7 +20,6 @@ from jenbot.helpers.details import (
 
 @JenkinsBot.on_callback_query(filters.regex("^jobs_\d{0,2}$"))
 async def job_info(c: JenkinsBot, m: CallbackQuery, call_from_code=False):
-    """This will Show the Jobs available in Jenkins Server"""
     if not JenkinsData.jobs:
         return await alert_and_delete(m)
     if not call_from_code:
@@ -35,7 +34,7 @@ async def job_info(c: JenkinsBot, m: CallbackQuery, call_from_code=False):
     job_details = get_job_details(jobName=JenkinsData.job_name)
     if not job_details:
         return await alert_and_delete(m, delete=False)
-
+    lastBuild = job_details["lastBuild"] or None
     params, msg_params, markup = [], "", []
     if job_details["property"] and get_param_names(job_details["property"]):
         params = get_param_names(job_details["property"])
@@ -49,14 +48,15 @@ async def job_info(c: JenkinsBot, m: CallbackQuery, call_from_code=False):
             for id, param in enumerate(params)
         ]
         msg_params = Template.generate_param_template(param_data=JenkinsData.job_params)
-    markup.append(
-        [
-            InlineKeyboardButton(
-                f"BUILD NOW {emoji.MAN_CONSTRUCTION_WORKER}",
-                callback_data="start_build",
-            )
-        ],
-    )
+    if job_details["buildable"]:
+        markup.append(
+            [
+                InlineKeyboardButton(
+                    f"BUILD NOW {emoji.MAN_CONSTRUCTION_WORKER}",
+                    callback_data="start_build",
+                )
+            ],
+        )
     markup.append(
         [InlineKeyboardButton(f"Back {emoji.BACK_ARROW}", callback_data="back2main")],
     )
@@ -65,8 +65,8 @@ async def job_info(c: JenkinsBot, m: CallbackQuery, call_from_code=False):
         job_name=JenkinsData.job_name,
         jobURL=job_details["url"],
         color=JenkinsData.COLORS[job_details["color"]],
-        lastBuildURL=job_details["lastBuild"]["url"]
-        if job_details["lastBuild"]
+        lastBuildURL=f'[{lastBuild["number"]}]({lastBuild["url"]})'
+        if lastBuild
         else None,
         description=job_details["description"] or None,
         paramNum=len(params),
